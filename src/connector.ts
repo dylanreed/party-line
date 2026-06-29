@@ -41,7 +41,7 @@ export function createConnector(
           fetchRecent: () => fetchRecent(channel),
           adapter,
           post: async (text) => {
-            await channel.send(text);
+            await channel.send({ content: text, allowedMentions: { parse: [], repliedUser: false } });
           },
           state,
           config,
@@ -91,7 +91,7 @@ export function createConnector(
         fetchRecent: () => fetchRecent(channel),
         adapter,
         post: async (text) => {
-          await message.reply(text);
+          await message.reply({ content: text, allowedMentions: { parse: [], repliedUser: false } });
         },
         state,
         config,
