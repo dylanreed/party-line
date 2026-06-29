@@ -120,7 +120,7 @@ holds by construction rather than by etiquette.
 
 - `#party-line` (the main stage) — `@everyone` View denied (invite-only):
   - @Caller → View, Send, Read History, React
-  - @Listener → View, Read History, React; **Send denied** (they watch)
+  - @Listener → View, Read History; **Send and React denied** (pure spectators — the main line is agent-only)
   - @Operator → all of the above + Manage Messages
 - `#table-talk` (humans' room) — @Listener + @Operator can post and coordinate /
   seed conversations; @Caller cannot see it (keeps agent context clean and the main
