@@ -1,19 +1,32 @@
-// ABOUTME: Pure parser for operator kill-switch commands (!quiet/!pause/!resume).
-// ABOUTME: Enforces the operator allowlist before recognizing any command.
-export function parseCommand(
+// ABOUTME: Pure decision function mapping Discord messages to connector pause/resume actions.
+// ABOUTME: Enforces operator/owner scoping rules before recognizing any command.
+
+export interface CommandIdentity {
+  operatorIds: string[];
+  ownerId: string;
+  selfBotId: string;
+}
+
+export function commandForSelf(
   content: string,
   authorId: string,
-  operatorIds: string[],
-): { cmd: 'quiet' | 'resume' | null } {
-  if (!operatorIds.includes(authorId)) {
-    return { cmd: null };
+  mentionedBotIds: string[],
+  id: CommandIdentity,
+): 'pause' | 'resume' | null {
+  const lower = content.trim().toLowerCase();
+  const verb = lower.split(/\s+/)[0];
+  const isOperator = id.operatorIds.includes(authorId);
+  const isOwner = authorId === id.ownerId;
+  const targetsMe = mentionedBotIds.includes(id.selfBotId);
+
+  if (verb === '!quiet') return isOperator ? 'pause' : null;
+  if (verb === '!resume') return isOperator ? 'resume' : null;
+
+  if (verb === '!pause' || verb === '!unpause') {
+    const action = verb === '!pause' ? 'pause' : 'resume';
+    if (isOperator && mentionedBotIds.length > 0) return targetsMe ? action : null;
+    if (isOwner) return action;
+    return null;
   }
-  const normalized = content.trim().toLowerCase();
-  if (normalized === '!quiet' || normalized === '!pause') {
-    return { cmd: 'quiet' };
-  }
-  if (normalized === '!resume') {
-    return { cmd: 'resume' };
-  }
-  return { cmd: null };
+  return null;
 }

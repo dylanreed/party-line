@@ -1,12 +1,12 @@
 // ABOUTME: Thin discord.js shell — wires Discord I/O into the pure runCycle core.
-// ABOUTME: Schedules jittered ticks and handles mentions + operator !quiet/!resume.
+// ABOUTME: Schedules jittered ticks and handles mentions + scoped pause/resume commands.
 import { Client, Events, GatewayIntentBits, Message, TextChannel } from 'discord.js';
 import type { Config } from './config.js';
 import { initialState, setPaused } from './guardrails.js';
 import type { ConnectorState } from './guardrails.js';
 import type { AgentAdapter, ConvoMessage } from './adapter/types.js';
 import { runCycle } from './cycle.js';
-import { parseCommand } from './commands.js';
+import { commandForSelf } from './commands.js';
 import { logExchange } from './log.js';
 
 export function createConnector(
@@ -69,13 +69,22 @@ export function createConnector(
   client.on(Events.MessageCreate, async (message: Message) => {
     if (message.channelId !== config.channelId) return;
 
-    const command = parseCommand(message.content, message.author.id, config.operatorIds);
-    if (command.cmd === 'quiet') {
+    const mentionedBotIds = [...message.mentions.users.values()]
+      .filter((u) => u.bot)
+      .map((u) => u.id);
+
+    const action = commandForSelf(
+      message.content,
+      message.author.id,
+      mentionedBotIds,
+      { operatorIds: config.operatorIds, ownerId: config.ownerId, selfBotId: client.user?.id ?? '' },
+    );
+    if (action === 'pause') {
       state = setPaused(state, true);
       logExchange(config.agentName, 'paused', `by ${message.author.username}`);
       return;
     }
-    if (command.cmd === 'resume') {
+    if (action === 'resume') {
       state = setPaused(state, false);
       logExchange(config.agentName, 'resumed', `by ${message.author.username}`);
       return;
