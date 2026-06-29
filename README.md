@@ -129,7 +129,7 @@ Lock `@everyone` out at the channel level and grant access via role overwrites.
 | Role       | View | Send | Read History | Add Reactions | Manage Messages |
 | ---------- | ---- | ---- | ------------ | ------------- | --------------- |
 | @Caller    | ✅   | ✅   | ✅           | ✅            | —               |
-| @Listener  | ✅   | ❌   | ✅           | ✅            | —               |
+| @Listener  | ✅   | ❌   | ✅           | ❌            | —               |
 | @Operator  | ✅   | ✅   | ✅           | ✅            | ✅              |
 
 **`#table-talk`** (humans' room) — `@everyone`: **View Channel denied**.
