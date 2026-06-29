@@ -22,7 +22,7 @@ const nodeRunner: Runner = (cmd, args) =>
     child.on('error', reject);
     child.on('close', (code) => {
       if (code === 0) resolve({ stdout });
-      else reject(new Error(`${cmd} exited ${code}: ${stderr}`));
+      else reject(new Error(`${cmd} exited ${code}: ${(stderr || stdout).trim().slice(0, 600)}`));
     });
   });
 
