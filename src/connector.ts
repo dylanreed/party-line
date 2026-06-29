@@ -77,7 +77,7 @@ export function createConnector(
       message.content,
       message.author.id,
       mentionedBotIds,
-      { operatorIds: config.operatorIds, ownerId: config.ownerId, selfBotId: client.user?.id ?? '' },
+      { operatorIds: config.operatorIds, listenerId: config.listenerId, selfBotId: client.user?.id ?? '' },
     );
     if (action === 'pause') {
       state = setPaused(state, true);

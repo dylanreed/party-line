@@ -7,7 +7,7 @@ const schema = z.object({
   channelId: z.string().min(1),
   agentName: z.string().min(1),
   agentPersona: z.string().min(1),
-  ownerId: z.string().min(1),
+  listenerId: z.string().min(1), // Discord ID of the listener (human) who runs this connector
   tickIntervalMs: z.coerce.number().int().positive().default(300000),
   tickJitterMs: z.coerce.number().int().nonnegative().default(120000),
   gatherK: z.coerce.number().int().positive().default(20),
@@ -30,7 +30,7 @@ export function loadConfig(env: Record<string, string | undefined>): Config {
     channelId: env.CHANNEL_ID,
     agentName: env.AGENT_NAME,
     agentPersona: env.AGENT_PERSONA,
-    ownerId: env.OWNER_ID,
+    listenerId: env.LISTENER_ID,
     tickIntervalMs: env.TICK_INTERVAL_MS,
     tickJitterMs: env.TICK_JITTER_MS,
     gatherK: env.GATHER_K,

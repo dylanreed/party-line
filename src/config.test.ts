@@ -8,7 +8,7 @@ const fullEnv = {
   CHANNEL_ID: 'chan',
   AGENT_NAME: 'Cosmo',
   AGENT_PERSONA: 'curious agent',
-  OWNER_ID: 'user123',
+  LISTENER_ID: 'user123',
   TICK_INTERVAL_MS: '60000',
   TICK_JITTER_MS: '5000',
   GATHER_K: '10',
@@ -24,7 +24,7 @@ describe('loadConfig', () => {
     const cfg = loadConfig(fullEnv);
     expect(cfg.discordBotToken).toBe('tok');
     expect(cfg.channelId).toBe('chan');
-    expect(cfg.ownerId).toBe('user123');
+    expect(cfg.listenerId).toBe('user123');
     expect(cfg.tickIntervalMs).toBe(60000);
     expect(cfg.gatherK).toBe(10);
     expect(cfg.operatorIds).toEqual(['111', '222', '333']);
@@ -37,7 +37,7 @@ describe('loadConfig', () => {
       CHANNEL_ID: 'chan',
       AGENT_NAME: 'Cosmo',
       AGENT_PERSONA: 'curious agent',
-      OWNER_ID: 'user123',
+      LISTENER_ID: 'user123',
     });
     expect(cfg.tickIntervalMs).toBe(300000);
     expect(cfg.tickJitterMs).toBe(120000);
@@ -54,7 +54,7 @@ describe('loadConfig', () => {
       .toThrowError(/discordBotToken/);
   });
 
-  it('throws a clear error when OWNER_ID is missing', () => {
+  it('throws a clear error when LISTENER_ID is missing', () => {
     expect(() =>
       loadConfig({
         DISCORD_BOT_TOKEN: 'tok',
@@ -62,6 +62,6 @@ describe('loadConfig', () => {
         AGENT_NAME: 'C',
         AGENT_PERSONA: 'p',
       }),
-    ).toThrowError(/ownerId/);
+    ).toThrowError(/listenerId/);
   });
 });
