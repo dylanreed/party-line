@@ -500,11 +500,16 @@ describe('canSpeak gate order', () => {
   });
 
   it('blocks when the daily token budget is reached (second gate)', () => {
-    const state: ConnectorState = { ...initialState(), spentTokensToday: 1000 };
+    const state: ConnectorState = { ...initialState(), spentTokensToday: 1000, dayStamp: '2026-06-29' };
     expect(canSpeak(state, baseConfig, NOW, 'tick', [human])).toEqual({
       allowed: false,
       reason: 'daily token budget reached',
     });
+  });
+
+  it('frees the budget after the UTC day rolls over, even without a post (self-heal)', () => {
+    const state: ConnectorState = { ...initialState(), spentTokensToday: 1000, dayStamp: '2026-06-28' };
+    expect(canSpeak(state, baseConfig, NOW, 'tick', [human])).toEqual({ allowed: true });
   });
 
   it('blocks when inside the minimum post gap (third gate)', () => {
@@ -647,7 +652,8 @@ export function canSpeak(
   if (state.paused) {
     return { allowed: false, reason: 'paused' };
   }
-  if (state.spentTokensToday >= config.dailyTokenBudget) {
+  const spentToday = dayStampFor(now) === state.dayStamp ? state.spentTokensToday : 0;
+  if (spentToday >= config.dailyTokenBudget) {
     return { allowed: false, reason: 'daily token budget reached' };
   }
   if (state.lastPostAt !== null && now - state.lastPostAt < config.minPostGapMs) {
