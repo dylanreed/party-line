@@ -24,7 +24,8 @@ export class ClaudeCodeAdapter implements AgentAdapter {
       '',
     );
     const trimmed = stdout.trim();
-    if (/^PASS\b/.test(trimmed)) {
+    // Empty/whitespace output means nothing to add — treat as PASS, never post a blank.
+    if (trimmed === '' || /^PASS\b/.test(trimmed)) {
       return { kind: 'pass', tokensUsed: usageTokens };
     }
     return { kind: 'message', text: trimmed, tokensUsed: usageTokens };

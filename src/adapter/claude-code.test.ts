@@ -37,6 +37,12 @@ describe('ClaudeCodeAdapter', () => {
     expect(await adapter.respond(ctx)).toEqual({ kind: 'pass', tokensUsed: 5 });
   });
 
+  it('treats an empty/whitespace response as a pass (never posts a blank)', async () => {
+    const { runner } = fakeRunner({ stdout: '   \n' });
+    const adapter = new ClaudeCodeAdapter({ claudeCmd: 'claude', runner });
+    expect((await adapter.respond(ctx)).kind).toBe('pass');
+  });
+
   it('treats a PASS-prefixed reply as a pass (word boundary)', async () => {
     const { runner } = fakeRunner({ stdout: 'PASS - nothing to add' });
     const adapter = new ClaudeCodeAdapter({ claudeCmd: 'claude', runner });
