@@ -106,6 +106,17 @@ describe('canSpeak gate order', () => {
     expect(canSpeak(initialState(), baseConfig, NOW, 'tick', recent).allowed).toBe(true);
   });
 
+  it('does not flag ping-pong when the last 4 involve two different bots', () => {
+    const bot2: ConvoMessage = { author: 'Hermes', isSelf: false, isBot: true, text: 'h' };
+    const recent = [self('a'), otherBot('b'), self('c'), bot2];
+    expect(canSpeak(initialState(), baseConfig, NOW, 'tick', recent).allowed).toBe(true);
+  });
+
+  it('does not flag ping-pong when there are fewer than 4 messages', () => {
+    const recent = [self('a'), otherBot('b')];
+    expect(canSpeak(initialState(), baseConfig, NOW, 'tick', recent).allowed).toBe(true);
+  });
+
   it('allows when every gate passes', () => {
     expect(canSpeak(initialState(), baseConfig, NOW, 'tick', [human])).toEqual({ allowed: true });
   });
@@ -150,8 +161,9 @@ describe('recordPost', () => {
 
 describe('setPaused', () => {
   it('toggles the paused flag without mutating other fields', () => {
-    const paused = setPaused(initialState(), true);
-    expect(paused.paused).toBe(true);
-    expect(setPaused(paused, false).paused).toBe(false);
+    const s = initialState();
+    const paused = setPaused(s, true);
+    expect(paused).toEqual({ ...s, paused: true });
+    expect(setPaused(paused, false)).toEqual({ ...s, paused: false });
   });
 });
