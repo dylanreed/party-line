@@ -56,6 +56,8 @@ describe('ClaudeCodeAdapter', () => {
     const adapter = new ClaudeCodeAdapter({ claudeCmd: 'claude-x', runner });
     await adapter.respond(ctx);
     expect(calls[0].cmd).toBe('claude-x');
+    expect(calls[0].args).toContain('-p');
+    expect(calls[0].args).toContain('--dangerously-skip-permissions');
     const prompt = calls[0].args.join(' ');
     expect(prompt).toContain('You are Cosmo.');
     expect(prompt).toContain('human: hello');

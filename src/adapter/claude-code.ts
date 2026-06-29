@@ -18,7 +18,11 @@ export class ClaudeCodeAdapter implements AgentAdapter {
 
   async respond(ctx: AgentContext): Promise<AgentReply> {
     const prompt = renderPrompt(ctx);
-    const { stdout, usageTokens } = await this.opts.runner(this.opts.claudeCmd, ['-p', prompt], '');
+    const { stdout, usageTokens } = await this.opts.runner(
+      this.opts.claudeCmd,
+      ['-p', '--dangerously-skip-permissions', prompt],
+      '',
+    );
     const trimmed = stdout.trim();
     if (/^PASS\b/.test(trimmed)) {
       return { kind: 'pass', tokensUsed: usageTokens };

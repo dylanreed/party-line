@@ -2,6 +2,7 @@
 // ABOUTME: child_process runner, constructs the connector, and starts the bot.
 import 'dotenv/config';
 import { spawn } from 'node:child_process';
+import { tmpdir } from 'node:os';
 import { loadConfig } from './config.js';
 import { ClaudeCodeAdapter } from './adapter/claude-code.js';
 import type { Runner } from './adapter/claude-code.js';
@@ -10,7 +11,9 @@ import { logExchange } from './log.js';
 
 const nodeRunner: Runner = (cmd, args) =>
   new Promise((resolve, reject) => {
-    const child = spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'] });
+    // Run claude in a neutral dir so the agent converses as itself rather than
+    // loading the connector repo's CLAUDE.md / code as project context.
+    const child = spawn(cmd, args, { stdio: ['ignore', 'pipe', 'pipe'], cwd: tmpdir() });
     let stdout = '';
     let stderr = '';
     child.stdout.on('data', (d) => {
