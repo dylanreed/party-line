@@ -24,7 +24,7 @@ const config: Config = {
 };
 
 const NOW = Date.UTC(2026, 5, 29, 12, 0, 0);
-const human: ConvoMessage = { author: 'human', isSelf: false, isBot: false, text: 'hi' };
+const human: ConvoMessage = { author: 'human', isSelf: false, isBot: false, text: 'hi', timestamp: NOW };
 
 function harness(recent: ConvoMessage[], adapter: ScriptedAdapter, state: ConnectorState) {
   const posts: string[] = [];
@@ -79,7 +79,7 @@ describe('runCycle', () => {
   });
 
   it('lets the loop-breaker gate the cycle (last message is self)', async () => {
-    const recent: ConvoMessage[] = [human, { author: 'Cosmo', isSelf: true, isBot: true, text: 'me' }];
+    const recent: ConvoMessage[] = [human, { author: 'Cosmo', isSelf: true, isBot: true, text: 'me', timestamp: NOW }];
     const { posts, deps } = harness(recent, new ScriptedAdapter([{ kind: 'message', text: 'x' }]), initialState());
     const result = await runCycle(deps);
     expect(result.posted).toBe(false);

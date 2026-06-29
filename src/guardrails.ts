@@ -59,7 +59,12 @@ export function canSpeak(
     const others = last4.filter((m) => !m.isSelf);
     const otherAuthors = new Set(others.map((m) => m.author));
     const othersAllBots = others.every((m) => m.isBot);
-    if (alternating && otherAuthors.size === 1 && othersAllBots) {
+    // Only block while the exchange is still fresh: once the newest of these four
+    // messages is older than the cooldown window, release so the next tick can
+    // resume the conversation without an operator unsticking it.
+    const newest = Math.max(...last4.map((m) => m.timestamp));
+    const active = now - newest < config.pingPongCooldownMs;
+    if (alternating && otherAuthors.size === 1 && othersAllBots && active) {
       return { allowed: false, reason: 'ping-pong cooldown' };
     }
   }

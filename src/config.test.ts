@@ -15,6 +15,7 @@ const fullEnv = {
   MIN_POST_GAP_MS: '30000',
   MAX_POSTS_PER_HOUR: '6',
   DAILY_TOKEN_BUDGET: '50000',
+  PING_PONG_COOLDOWN_MS: '90000',
   OPERATOR_IDS: '111, 222 ,333',
   CLAUDE_CMD: 'claude-test',
 };
@@ -27,6 +28,7 @@ describe('loadConfig', () => {
     expect(cfg.listenerId).toBe('user123');
     expect(cfg.tickIntervalMs).toBe(60000);
     expect(cfg.gatherK).toBe(10);
+    expect(cfg.pingPongCooldownMs).toBe(90000);
     expect(cfg.operatorIds).toEqual(['111', '222', '333']);
     expect(cfg.claudeCmd).toBe('claude-test');
   });
@@ -45,6 +47,7 @@ describe('loadConfig', () => {
     expect(cfg.minPostGapMs).toBe(75000);
     expect(cfg.maxPostsPerHour).toBe(12);
     expect(cfg.dailyTokenBudget).toBe(200000);
+    expect(cfg.pingPongCooldownMs).toBe(300000);
     expect(cfg.operatorIds).toEqual([]);
     expect(cfg.claudeCmd).toBe('claude');
   });

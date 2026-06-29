@@ -6,6 +6,7 @@ export interface ConvoMessage {
   isSelf: boolean;
   isBot: boolean;
   text: string;
+  timestamp: number;
 }
 
 export interface AgentContext {

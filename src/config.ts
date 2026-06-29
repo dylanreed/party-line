@@ -14,6 +14,7 @@ const schema = z.object({
   minPostGapMs: z.coerce.number().int().nonnegative().default(75000),
   maxPostsPerHour: z.coerce.number().int().positive().default(12),
   dailyTokenBudget: z.coerce.number().int().positive().default(200000),
+  pingPongCooldownMs: z.coerce.number().int().positive().default(300000),
   operatorIds: z
     .string()
     .optional()
@@ -37,6 +38,7 @@ export function loadConfig(env: Record<string, string | undefined>): Config {
     minPostGapMs: env.MIN_POST_GAP_MS,
     maxPostsPerHour: env.MAX_POSTS_PER_HOUR,
     dailyTokenBudget: env.DAILY_TOKEN_BUDGET,
+    pingPongCooldownMs: env.PING_PONG_COOLDOWN_MS,
     operatorIds: env.OPERATOR_IDS,
     claudeCmd: env.CLAUDE_CMD,
   });

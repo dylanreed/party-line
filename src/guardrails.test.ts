@@ -17,18 +17,19 @@ const baseConfig: Config = {
   minPostGapMs: 75000,
   maxPostsPerHour: 12,
   dailyTokenBudget: 1000,
+  pingPongCooldownMs: 300000,
   operatorIds: [],
   claudeCmd: 'claude',
 };
 
 const NOW = Date.UTC(2026, 5, 29, 12, 0, 0);
-const human: ConvoMessage = { author: 'human', isSelf: false, isBot: false, text: 'hi' };
+const human: ConvoMessage = { author: 'human', isSelf: false, isBot: false, text: 'hi', timestamp: NOW };
 
-function self(text = 's'): ConvoMessage {
-  return { author: 'Cosmo', isSelf: true, isBot: true, text };
+function self(text = 's', timestamp = NOW): ConvoMessage {
+  return { author: 'Cosmo', isSelf: true, isBot: true, text, timestamp };
 }
-function otherBot(text = 'o'): ConvoMessage {
-  return { author: 'Keel', isSelf: false, isBot: true, text };
+function otherBot(text = 'o', timestamp = NOW): ConvoMessage {
+  return { author: 'Keel', isSelf: false, isBot: true, text, timestamp };
 }
 
 describe('initialState', () => {
@@ -101,13 +102,52 @@ describe('canSpeak gate order', () => {
     });
   });
 
+  it('blocks a fresh ping-pong: the exchange is within the cooldown window', () => {
+    // All four messages land just before NOW, inside pingPongCooldownMs — still cooling down.
+    const recent = [
+      self('a', NOW - 4000),
+      otherBot('b', NOW - 3000),
+      self('c', NOW - 2000),
+      otherBot('d', NOW - 1000),
+    ];
+    expect(canSpeak(initialState(), baseConfig, NOW, 'tick', recent)).toEqual({
+      allowed: false,
+      reason: 'ping-pong cooldown',
+    });
+  });
+
+  it('releases a stale ping-pong: the exchange is older than the cooldown window (deadlock self-heal)', () => {
+    // The newest of the four is more than pingPongCooldownMs old, so the cooldown has expired
+    // and the conversation can resume with no operator interaction.
+    const newest = NOW - baseConfig.pingPongCooldownMs - 1;
+    const recent = [
+      self('a', newest - 3000),
+      otherBot('b', newest - 2000),
+      self('c', newest - 1000),
+      otherBot('d', newest),
+    ];
+    expect(canSpeak(initialState(), baseConfig, NOW, 'tick', recent)).toEqual({ allowed: true });
+  });
+
+  it('releases at the cooldown boundary: now - newest === pingPongCooldownMs is allowed', () => {
+    // Boundary choice: the block is strict (now - newest < cooldown). Exactly at the edge releases.
+    const newest = NOW - baseConfig.pingPongCooldownMs;
+    const recent = [
+      self('a', newest - 3000),
+      otherBot('b', newest - 2000),
+      self('c', newest - 1000),
+      otherBot('d', newest),
+    ];
+    expect(canSpeak(initialState(), baseConfig, NOW, 'tick', recent)).toEqual({ allowed: true });
+  });
+
   it('does not flag ping-pong when a human is in the last 4', () => {
     const recent = [self('a'), otherBot('b'), human, otherBot('d')];
     expect(canSpeak(initialState(), baseConfig, NOW, 'tick', recent).allowed).toBe(true);
   });
 
   it('does not flag ping-pong when the last 4 involve two different bots', () => {
-    const bot2: ConvoMessage = { author: 'Hermes', isSelf: false, isBot: true, text: 'h' };
+    const bot2: ConvoMessage = { author: 'Hermes', isSelf: false, isBot: true, text: 'h', timestamp: NOW };
     const recent = [self('a'), otherBot('b'), self('c'), bot2];
     expect(canSpeak(initialState(), baseConfig, NOW, 'tick', recent).allowed).toBe(true);
   });

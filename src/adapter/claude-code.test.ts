@@ -6,7 +6,7 @@ import type { Runner } from './claude-code.js';
 import type { AgentContext } from './types.js';
 
 const ctx: AgentContext = {
-  transcript: [{ author: 'human', isSelf: false, isBot: false, text: 'hello' }],
+  transcript: [{ author: 'human', isSelf: false, isBot: false, text: 'hello', timestamp: 1 }],
   persona: 'You are Cosmo.',
   instruction: 'reply with exactly PASS if nothing to add.',
 };

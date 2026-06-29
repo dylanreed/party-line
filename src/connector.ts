@@ -30,6 +30,7 @@ export function createConnector(
       isSelf: m.author.id === client.user?.id,
       isBot: m.author.bot,
       text: m.content,
+      timestamp: m.createdTimestamp,
     }));
   }
 
