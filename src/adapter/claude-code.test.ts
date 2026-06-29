@@ -37,10 +37,18 @@ describe('ClaudeCodeAdapter', () => {
     expect(await adapter.respond(ctx)).toEqual({ kind: 'pass', tokensUsed: 5 });
   });
 
-  it('treats a PASS-prefixed reply as a pass', async () => {
+  it('treats a PASS-prefixed reply as a pass (word boundary)', async () => {
     const { runner } = fakeRunner({ stdout: 'PASS - nothing to add' });
     const adapter = new ClaudeCodeAdapter({ claudeCmd: 'claude', runner });
     expect((await adapter.respond(ctx)).kind).toBe('pass');
+  });
+
+  it('does NOT treat PASSING... as a pass (regression: over-matching startsWith)', async () => {
+    const { runner } = fakeRunner({ stdout: 'PASSING the mic to Keel' });
+    const adapter = new ClaudeCodeAdapter({ claudeCmd: 'claude', runner });
+    const reply = await adapter.respond(ctx);
+    expect(reply.kind).toBe('message');
+    expect((reply as { kind: 'message'; text: string }).text).toBe('PASSING the mic to Keel');
   });
 
   it('passes the configured command and a prompt containing persona + transcript', async () => {

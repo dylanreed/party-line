@@ -20,7 +20,7 @@ export class ClaudeCodeAdapter implements AgentAdapter {
     const prompt = renderPrompt(ctx);
     const { stdout, usageTokens } = await this.opts.runner(this.opts.claudeCmd, ['-p', prompt], '');
     const trimmed = stdout.trim();
-    if (trimmed === 'PASS' || trimmed.startsWith('PASS')) {
+    if (/^PASS\b/.test(trimmed)) {
       return { kind: 'pass', tokensUsed: usageTokens };
     }
     return { kind: 'message', text: trimmed, tokensUsed: usageTokens };
